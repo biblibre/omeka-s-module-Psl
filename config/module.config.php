@@ -12,7 +12,7 @@ return [
     'oaipmhrepository' => [
         'metadata_formats' => [
             'factories' => [
-                'oai_dc_psl' => 'Psl\Service\OaiMetadataFormat\OaiDcPslFactory',
+                'psl_dc' => 'Psl\Service\OaiMetadataFormat\PslDcFactory',
             ],
         ],
     ],

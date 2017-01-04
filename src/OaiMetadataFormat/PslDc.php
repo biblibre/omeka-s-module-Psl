@@ -6,22 +6,20 @@ use DOMElement;
 use Omeka\Api\Representation\ItemRepresentation;
 use Omeka\Settings\SettingsInterface;
 use OaiPmhRepository\Metadata\AbstractMetadata;
-use OaiPmhRepository\Metadata\OaiDc;
 
 /**
- * Class implmenting metadata output for the required oai_dc metadata format.
- * oai_dc is output of the 15 unqualified Dublin Core fields.
+ * Class implmenting metadata output for the psl_dc metadata format.
  */
-class OaiDcPsl extends OaiDc
+class PslDc extends AbstractMetadata
 {
     /** OAI-PMH metadata prefix */
-    const METADATA_PREFIX = 'oai_dc_psl';
+    const METADATA_PREFIX = 'psl_dc';
 
     /** XML namespace for output format */
-    const METADATA_NAMESPACE = 'http://www.openarchives.org/OAI/2.0/oai_dc/';
+    const METADATA_NAMESPACE = 'http://purl.org/psl/psl_dc/';
 
     /** XML schema for output format */
-    const METADATA_SCHEMA = 'http://www.openarchives.org/OAI/2.0/oai_dc.xsd';
+    const METADATA_SCHEMA = 'http://purl.org/psl/psl_dc/psl_dc.xsd';
 
     /** XML namespace for unqualified Dublin Core */
     const DC_NAMESPACE_URI = 'http://purl.org/dc/elements/1.1/';
@@ -47,20 +45,18 @@ class OaiDcPsl extends OaiDc
     {
         $document = $metadataElement->ownerDocument;
 
-        $oai_dc = $document->createElementNS(self::METADATA_NAMESPACE, 'oai_dc:dc');
-        $metadataElement->appendChild($oai_dc);
+        $psl_dc = $document->createElementNS(self::METADATA_NAMESPACE, 'psl_dc:dc');
+        $metadataElement->appendChild($psl_dc);
 
         /* Must manually specify XML schema uri per spec, but DOM won't include
          * a redundant xmlns:xsi attribute, so we just set the attribute
          */
-        $oai_dc->setAttribute('xmlns:dc', self::DC_NAMESPACE_URI);
-        $oai_dc->setAttribute('xmlns:xsi', parent::XML_SCHEMA_NAMESPACE_URI);
-        $oai_dc->setAttribute('xsi:schemaLocation', self::METADATA_NAMESPACE . ' ' .
+        $psl_dc->setAttribute('xmlns:dc', self::DC_NAMESPACE_URI);
+        $psl_dc->setAttribute('xmlns:xsi', parent::XML_SCHEMA_NAMESPACE_URI);
+        $psl_dc->setAttribute('xsi:schemaLocation', self::METADATA_NAMESPACE . ' ' .
             self::METADATA_SCHEMA);
 
-        /* Each of the 16 unqualified Dublin Core elements, in the order
-         * specified by the oai_dc XML schema
-         */
+        /* Each of the 16 unqualified Dublin Core elements */
         $dcElementNames = [
             'title', 'creator', 'subject', 'description', 'publisher',
             'contributor', 'date', 'type', 'format', 'identifier', 'source',
@@ -75,7 +71,7 @@ class OaiDcPsl extends OaiDc
             $values = $item->value("dcterms:$elementName", ['all' => true]);
             if (!empty($values)) {
                 foreach ($values as $value) {
-                    $this->appendNewElement($oai_dc, "dc:$elementName", (string) $value);
+                    $this->appendNewElement($psl_dc, "dc:$elementName", (string) $value);
                 }
             }
         }
@@ -83,25 +79,25 @@ class OaiDcPsl extends OaiDc
         $values = $item->value('dcpsl:institution', ['all' => true]);
         if (!empty($values)) {
             foreach ($values as $value) {
-                $element = $this->appendNewElement($oai_dc, 'dc:source', (string) $value);
-                $element->setAttribute('scheme', 'institution');
+                $element = $this->appendNewElement($psl_dc, 'dc:source', (string) $value);
+                $element->setAttribute('xsi:type', 'psl_dc:institution');
             }
         }
 
         $values = $item->value('dcpsl:rameau', ['all' => true]);
         if (!empty($values)) {
             foreach ($values as $value) {
-                $element = $this->appendNewElement($oai_dc, 'dc:subject', (string) $value);
-                $element->setAttribute('scheme', 'rameau');
+                $element = $this->appendNewElement($psl_dc, 'dc:subject', (string) $value);
+                $element->setAttribute('xsi:type', 'psl_dc:rameau');
             }
         }
 
-        $this->appendNewElement($oai_dc, 'dc:identifier', $item->siteUrl());
+        $this->appendNewElement($psl_dc, 'dc:identifier', $item->siteUrl());
 
         // Also append an identifier for each file
         if ($this->settings->get('oaipmh_repository_expose_files', false)) {
             foreach ($item->media() as $media) {
-                $this->appendNewElement($oai_dc, 'dc:identifier', $media->originalUrl());
+                $this->appendNewElement($psl_dc, 'dc:identifier', $media->originalUrl());
             }
         }
     }

@@ -4,9 +4,9 @@ namespace Psl\Service\OaiMetadataFormat;
 
 use Interop\Container\ContainerInterface;
 use Zend\ServiceManager\Factory\FactoryInterface;
-use Psl\OaiMetadataFormat\OaiDcPsl;
+use Psl\OaiMetadataFormat\PslDc;
 
-class OaiDcPslFactory implements FactoryInterface
+class PslDcFactory implements FactoryInterface
 {
     /**
      * Create the media ingester manager service.
@@ -17,6 +17,6 @@ class OaiDcPslFactory implements FactoryInterface
     {
         $settings = $container->get('Omeka\Settings');
 
-        return new OaiDcPsl($settings);
+        return new PslDc($settings);
     }
 }
