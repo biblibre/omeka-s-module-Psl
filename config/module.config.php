@@ -9,4 +9,11 @@ return [
             'Psl\MvcListeners' => 'Psl\Mvc\MvcListeners',
         ],
     ],
+    'oaipmhrepository' => [
+        'metadata_formats' => [
+            'factories' => [
+                'oai_dc_psl' => 'Psl\Service\OaiMetadataFormat\OaiDcPslFactory',
+            ],
+        ],
+    ],
 ];
