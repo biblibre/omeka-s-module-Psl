@@ -28,6 +28,7 @@ class Module extends AbstractModule
         $this->allowAcl(Acl::ROLE_AUTHOR, 'CSVImport\Api\Adapter\ImportAdapter');
         $this->allowAcl(Acl::ROLE_AUTHOR, 'CSVImport\Entity\CSVImportEntity');
         $this->allowAcl(Acl::ROLE_AUTHOR, 'CSVImport\Entity\CSVImportImport');
+        $this->allowAcl(Acl::ROLE_AUTHOR, 'Omeka\Api\Adapter\ItemAdapter', 'batch_create');
     }
 
     protected function allowAcl($role, $resource)
