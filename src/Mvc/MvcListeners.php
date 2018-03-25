@@ -38,8 +38,10 @@ class MvcListeners extends AbstractListenerAggregate
             return;
         }
 
-        $itemSetId = $routeMatch->getParam('item-set-id');
         $searchPageId = $themeSettings['search_page_id'];
+        if (empty($searchPageId)) {
+            return;
+        }
 
         $routeMatch = new RouteMatch([
             '__NAMESPACE__' => 'Search\Controller',
@@ -51,6 +53,8 @@ class MvcListeners extends AbstractListenerAggregate
         ]);
         $routeMatch->setMatchedRouteName('search-page-' . $searchPageId);
         $event->setRouteMatch($routeMatch);
+
+        $itemSetId = $routeMatch->getParam('item-set-id');
 
         $query = $event->getRequest()->getQuery();
         $query->set('itemSet', ['ids' => [$itemSetId]]);
