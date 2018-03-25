@@ -1,11 +1,10 @@
 <?php
 
-namespace Psl\OaiMetadataFormat;
+namespace Psl\OaiPmh\Metadata;
 
 use DOMElement;
+use OaiPmhRepository\OaiPmh\Metadata\AbstractMetadata;
 use Omeka\Api\Representation\ItemRepresentation;
-use Omeka\Settings\SettingsInterface;
-use OaiPmhRepository\Metadata\AbstractMetadata;
 
 /**
  * Class implmenting metadata output for the psl_dc metadata format.
@@ -23,16 +22,6 @@ class PslDc extends AbstractMetadata
 
     /** XML namespace for unqualified Dublin Core */
     const DC_NAMESPACE_URI = 'http://purl.org/dc/elements/1.1/';
-
-    /**
-     * @var SettingsInterface
-     */
-    protected $settings;
-
-    public function __construct(SettingsInterface $settings)
-    {
-        $this->settings = $settings;
-    }
 
     /**
      * Appends Dublin Core metadata.
@@ -56,7 +45,9 @@ class PslDc extends AbstractMetadata
         $psl_dc->setAttribute('xsi:schemaLocation', self::METADATA_NAMESPACE . ' ' .
             self::METADATA_SCHEMA);
 
-        /* Each of the 16 unqualified Dublin Core elements */
+        /* Each of the 16 unqualified Dublin Core elements, in the order
+         * specified by the oai_dc XML schema
+         */
         $dcElementNames = [
             'title', 'creator', 'subject', 'description', 'publisher',
             'contributor', 'date', 'type', 'format', 'identifier', 'source',
@@ -95,38 +86,23 @@ class PslDc extends AbstractMetadata
         $this->appendNewElement($psl_dc, 'dc:identifier', $item->siteUrl());
 
         // Also append an identifier for each file
-        if ($this->settings->get('oaipmh_repository_expose_files', false)) {
+        if ($this->settings->get('oaipmhrepository_expose_media', false)) {
             foreach ($item->media() as $media) {
                 $this->appendNewElement($psl_dc, 'dc:identifier', $media->originalUrl());
             }
         }
     }
 
-    /**
-     * Returns the OAI-PMH metadata prefix for the output format.
-     *
-     * @return string Metadata prefix
-     */
     public function getMetadataPrefix()
     {
         return self::METADATA_PREFIX;
     }
 
-    /**
-     * Returns the XML schema for the output format.
-     *
-     * @return string XML schema URI
-     */
     public function getMetadataSchema()
     {
         return self::METADATA_SCHEMA;
     }
 
-    /**
-     * Returns the XML namespace for the output format.
-     *
-     * @return string XML namespace URI
-     */
     public function getMetadataNamespace()
     {
         return self::METADATA_NAMESPACE;
