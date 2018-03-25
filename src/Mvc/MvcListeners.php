@@ -24,7 +24,7 @@ class MvcListeners extends AbstractListenerAggregate
     public function redirectItemSetToSearch(MvcEvent $event)
     {
         $serviceLocator = $event->getApplication()->getServiceManager();
-        $siteSettings = $serviceLocator->get('Omeka\SiteSettings');
+        $siteSettings = $serviceLocator->get('Omeka\Settings\Site');
 
         $routeMatch = $event->getRouteMatch();
         $matchedRouteName = $routeMatch->getMatchedRouteName();
