@@ -33,7 +33,7 @@ class MvcListeners extends AbstractListenerAggregate
         }
 
         $siteSlug = $routeMatch->getParam('site-slug');
-        $themeSettings = $siteSettings->get("theme_settings_$siteSlug");
+        $themeSettings = $siteSettings->get("theme_settings_$siteSlug", []);
         if (!array_key_exists('search_page_id', $themeSettings)) {
             return;
         }
