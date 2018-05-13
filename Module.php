@@ -31,11 +31,11 @@ class Module extends AbstractModule
         $this->allowAcl(Acl::ROLE_AUTHOR, 'Omeka\Api\Adapter\ItemAdapter', 'batch_create');
     }
 
-    protected function allowAcl($role, $resource)
+    protected function allowAcl($role, $resource, $privileges = null)
     {
         $acl = $this->getServiceLocator()->get('Omeka\Acl');
         if ($acl->hasResource($resource)) {
-            $acl->allow($role, $resource);
+            $acl->allow($role, $resource, $privileges);
         }
     }
 }
