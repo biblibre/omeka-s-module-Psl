@@ -46,7 +46,7 @@ class MvcListeners extends AbstractListenerAggregate
         $routeMatch = new RouteMatch([
             '__NAMESPACE__' => 'Search\Controller',
             '__SITE__' => true,
-            'controller' => 'Search\Controller\Index',
+            'controller' => 'Search\Controller\IndexController',
             'action' => 'search',
             'site-slug' => $siteSlug,
             'id' => $searchPageId,
