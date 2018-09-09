@@ -1,5 +1,4 @@
 <?php
-
 namespace Psl\Mvc;
 
 use Zend\EventManager\EventManagerInterface;
@@ -9,9 +8,6 @@ use Zend\Router\Http\RouteMatch;
 
 class MvcListeners extends AbstractListenerAggregate
 {
-    /**
-     * {@inheritDoc}
-     */
     public function attach(EventManagerInterface $events, $priority = 1)
     {
         $this->listeners[] = $events->attach(
@@ -32,16 +28,12 @@ class MvcListeners extends AbstractListenerAggregate
             return;
         }
 
-        $siteSlug = $routeMatch->getParam('site-slug');
-        $themeSettings = $siteSettings->get("theme_settings_$siteSlug", []);
-        if (!array_key_exists('search_page_id', $themeSettings)) {
+        $searchMainPage = $siteSettings->get('search_main_page');
+        if (empty($searchMainPage)) {
             return;
         }
 
-        $searchPageId = $themeSettings['search_page_id'];
-        if (empty($searchPageId)) {
-            return;
-        }
+        $siteSlug = $routeMatch->getParam('site-slug');
 
         $routeMatch = new RouteMatch([
             '__NAMESPACE__' => 'Search\Controller',
@@ -49,9 +41,9 @@ class MvcListeners extends AbstractListenerAggregate
             'controller' => 'Search\Controller\IndexController',
             'action' => 'search',
             'site-slug' => $siteSlug,
-            'id' => $searchPageId,
+            'id' => $searchMainPage,
         ]);
-        $routeMatch->setMatchedRouteName('search-page-' . $searchPageId);
+        $routeMatch->setMatchedRouteName('search-page-' . $searchMainPage);
         $event->setRouteMatch($routeMatch);
 
         $itemSetId = $routeMatch->getParam('item-set-id');
