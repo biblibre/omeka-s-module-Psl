@@ -17,36 +17,40 @@ class MvcListeners extends AbstractListenerAggregate
         );
     }
 
+    /**
+     * Redirect item set show to the search page with item set set as url query.
+     *
+     * @param MvcEvent $event
+     */
     public function redirectItemSetToSearch(MvcEvent $event)
     {
-        $serviceLocator = $event->getApplication()->getServiceManager();
-        $siteSettings = $serviceLocator->get('Omeka\Settings\Site');
-
         $routeMatch = $event->getRouteMatch();
         $matchedRouteName = $routeMatch->getMatchedRouteName();
         if ('site/item-set' !== $matchedRouteName) {
             return;
         }
 
+        $services = $event->getApplication()->getServiceManager();
+        $siteSettings = $services->get('Omeka\Settings\Site');
         $searchMainPage = $siteSettings->get('search_main_page');
         if (empty($searchMainPage)) {
             return;
         }
 
         $siteSlug = $routeMatch->getParam('site-slug');
+        $itemSetId = $routeMatch->getParam('item-set-id');
 
-        $routeMatch = new RouteMatch([
+        $params =  [
             '__NAMESPACE__' => 'Search\Controller',
             '__SITE__' => true,
-            'controller' => 'Search\Controller\IndexController',
+            'controller' => \Search\Controller\IndexController::class,
             'action' => 'search',
             'site-slug' => $siteSlug,
             'id' => $searchMainPage,
-        ]);
+        ];
+        $routeMatch = new RouteMatch($params);
         $routeMatch->setMatchedRouteName('search-page-' . $searchMainPage);
         $event->setRouteMatch($routeMatch);
-
-        $itemSetId = $routeMatch->getParam('item-set-id');
 
         $query = $event->getRequest()->getQuery();
         $query->set('itemSet', ['ids' => [$itemSetId]]);
