@@ -1,5 +1,4 @@
 <?php
-
 namespace Psl\Mvc;
 
 use Zend\EventManager\EventManagerInterface;
@@ -9,9 +8,6 @@ use Zend\Router\Http\RouteMatch;
 
 class MvcListeners extends AbstractListenerAggregate
 {
-    /**
-     * {@inheritDoc}
-     */
     public function attach(EventManagerInterface $events, $priority = 1)
     {
         $this->listeners[] = $events->attach(
@@ -21,35 +17,39 @@ class MvcListeners extends AbstractListenerAggregate
         );
     }
 
+    /**
+     * Redirect item set show to the search page with item set set as url query.
+     *
+     * @param MvcEvent $event
+     */
     public function redirectItemSetToSearch(MvcEvent $event)
     {
-        $serviceLocator = $event->getApplication()->getServiceManager();
-        $siteSettings = $serviceLocator->get('Omeka\SiteSettings');
-
         $routeMatch = $event->getRouteMatch();
         $matchedRouteName = $routeMatch->getMatchedRouteName();
         if ('site/item-set' !== $matchedRouteName) {
             return;
         }
 
-        $siteSlug = $routeMatch->getParam('site-slug');
-        $themeSettings = $siteSettings->get("theme_settings_$siteSlug");
-        if (!array_key_exists('search_page_id', $themeSettings)) {
+        $services = $event->getApplication()->getServiceManager();
+        $siteSettings = $services->get('Omeka\Settings\Site');
+        $searchMainPage = $siteSettings->get('search_main_page');
+        if (empty($searchMainPage)) {
             return;
         }
 
+        $siteSlug = $routeMatch->getParam('site-slug');
         $itemSetId = $routeMatch->getParam('item-set-id');
-        $searchPageId = $themeSettings['search_page_id'];
 
-        $routeMatch = new RouteMatch([
+        $params =  [
             '__NAMESPACE__' => 'Search\Controller',
             '__SITE__' => true,
-            'controller' => 'Search\Controller\Index',
+            'controller' => \Search\Controller\IndexController::class,
             'action' => 'search',
             'site-slug' => $siteSlug,
-            'id' => $searchPageId,
-        ]);
-        $routeMatch->setMatchedRouteName('search-page-' . $searchPageId);
+            'id' => $searchMainPage,
+        ];
+        $routeMatch = new RouteMatch($params);
+        $routeMatch->setMatchedRouteName('search-page-' . $searchMainPage);
         $event->setRouteMatch($routeMatch);
 
         $query = $event->getRequest()->getQuery();
